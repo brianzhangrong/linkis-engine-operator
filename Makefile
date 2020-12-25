@@ -2,7 +2,7 @@ IMAGE_NAME = harbor.ihomefnt.com/ai/engine-ops
 
 .PHONY: build
 build: 
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o engine-ops . 
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/engine-ops . 
 	docker build -t $(IMAGE_NAME) . 
 	docker push  $(IMAGE_NAME) 
 

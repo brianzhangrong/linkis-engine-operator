@@ -13,5 +13,5 @@
 # limitations under the License.
 
 FROM debian
-COPY ./engine-ops /engine-ops
+COPY ./bin/engine-ops /engine-ops
 ENTRYPOINT /engine-ops

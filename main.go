@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"test/goclient"
-	node "test/node"
+	"linkis-engine-operator/goclient"
+	node "linkis-engine-operator/node"
 )
 
 var _ *node.Node = &node.Node{Data: 2}

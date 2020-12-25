@@ -1,4 +1,4 @@
-module test
+module linkis-engine-operator
 
 go 1.15
 
