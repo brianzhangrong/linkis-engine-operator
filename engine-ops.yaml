@@ -1,0 +1,97 @@
+#
+#  Copyright 2019 WeBank
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: engine-ops
+subjects:
+- kind: ServiceAccount
+  name: pai
+  namespace: default
+roleRef:
+ kind: ClusterRole
+ name: engine-ops
+ apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: engine-ops
+rules:
+- apiGroups: [""]
+  resources: ["pods","serviceaccounts"]
+  verbs: ["get","watch","list","create","delete"]
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: engine-ops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: engine-ops
+      # release: dev
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  
+  template:
+    metadata:
+      labels:
+        app: engine-ops
+        # release: dev
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                      - engine-ops
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: engine-ops
+        image: harbor.ihomefnt.com/ai/engine-ops
+        # lifecycle:
+        #     preStop:
+        #       exec:
+        #         command: ["sh","/opt/ihome/linkis-bml/bin/stop.sh"]
+        imagePullPolicy: Always
+        ports:
+        - name: http
+          containerPort: 8888
+        livenessProbe:
+            tcpSocket:
+              port: 8888
+            initialDelaySeconds: 15
+            periodSeconds: 20
+        volumeMounts:
+        - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          name: certs
+          readOnly: true
+      volumes:
+      - name: certs
+        secret:
+          defaultMode: 420
+          secretName: pai-token-hpvrs
