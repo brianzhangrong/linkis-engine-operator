@@ -20,8 +20,8 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: pai
-  # namespace: istio-system
-  namespace: default
+  namespace: istio-system
+  # namespace: default
 roleRef:
  kind: ClusterRole
  name: engine-ops
@@ -47,7 +47,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: engine-ops
-  # namespace: istio-system
+  namespace: istio-system
 spec:
   replicas: 1
   selector:
