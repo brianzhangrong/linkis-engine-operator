@@ -47,17 +47,20 @@ func Test1() {
 
 	// get pods in all the namespaces by omitting namespace
 	// Or specify namespace to get pods in particular namespace
-	pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
+	namespaces := "istio-system"
+	deployments, err := clientset.AppsV1().Deployments(namespaces).List(metav1.ListOptions{})
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Printf("There are %d pods in the cluster\n", len(pods.Items))
+	for _, d := range deployments.Items {
+		fmt.Println("deployment -----> %s", d.GetName())
+	}
 
 	// Examples for error handling:
 	// - Use helper functions e.g. errors.IsNotFound()
 	// - And/or cast to StatusError and use its properties like e.g. ErrStatus.Message
 	for {
-		p, err := clientset.CoreV1().Pods("default").Get("recycler-for-minio-pv", metav1.GetOptions{})
+		p, err := clientset.CoreV1().Pods("istio-system").Get("recycler-for-minio-pv", metav1.GetOptions{})
 		if errors.IsNotFound(err) {
 			fmt.Printf("Pod example-xxxxx not found in default namespace\n")
 		} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
